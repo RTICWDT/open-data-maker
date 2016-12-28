@@ -36,7 +36,7 @@ OpenDataMaker::App.controllers :v1 do
     endpoints = DataMagic.config.api_endpoints.keys.map do |key|
       {
         name: key,
-        url: url_for(:v1, :index, endpoint: key)
+        url: url_for(:v1, :index, :endpoint => key)
       }
     end
     return { endpoints: endpoints }.to_json
@@ -47,13 +47,14 @@ OpenDataMaker::App.controllers :v1 do
     data.to_json
   end
 
-  get :index, with: ':endpoint/:command', provides: [:json] do
+  get :index, :with => :endpoint, :provides => [:json, :csv] do
     process_params
   end
 
-  get :index, with: ':endpoint', provides: [:json, :csv] do
+  get :index, :with => [:endpoint, :command], :provides => :json do
     process_params
   end
+
 end
 
 def process_params
@@ -103,8 +104,10 @@ def get_search_args_from_params(params)
     # TODO: remove next line to end support for un-prefixed option parameters
     options[opt.to_sym] ||= params.delete(opt)
   end
-  options[:endpoint] = params.delete("endpoint") # these two params are
-  options[:format]   = params.delete("format")   # supplied by Padrino
+  options[:endpoint] = params.delete("endpoint")     # these two (or three) params are
+  options[:format]   = params.delete("format")       # supplied by Padrino;
+  params.delete(:format) unless params[:format].nil? # format param duplicated if in url request
+
   options[:fields]   = (options[:fields]   || "").split(',')
   options[:command]  = params.delete("command")
 
