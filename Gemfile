@@ -48,7 +48,7 @@ group 'dev' do
 
 end
 # Padrino Stable Gem
-gem 'padrino', '0.13.3'
+gem 'padrino', '0.13.3.3'
 
 gem 'pry', :group => ['development', 'test']
 gem 'pry-byebug', :group => ['development', 'test']
