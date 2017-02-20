@@ -79,7 +79,7 @@ module DataMagic
     def clear_all
       unless @data.nil? or @data.empty?
         logger.info "Config.clear_all: deleting index '#{scoped_index_name}'"
-        Stretchy.delete scoped_index_name
+        Stretchy.delete_index scoped_index_name
         DataMagic.client.indices.clear_cache
       end
     end
@@ -285,8 +285,11 @@ module DataMagic
       # index when we update the configuration document
       DataMagic.client.indices.delete index: scoped_index_name if index_exists?
       DataMagic.create_index(scoped_index_name, field_types)  ## DataMagic::Index.create ?
+      dotted_dictionary = @data['dictionary'] unless @data['dictionary'].nil? # ES <2.4 dotted keys fix
+      @data['dictionary'] = NestedHash.new.add(@data['dictionary']) unless @data['dictionary'].nil?
       DataMagic.client.index index: scoped_index_name, type: 'config', id: 1, body: @data
       DataMagic.client.indices.refresh index: scoped_index_name
+      @data['dictionary'] = dotted_dictionary unless @data['dictionary'].nil?
     end
 
     def delete_index_and_reload_config

@@ -93,7 +93,7 @@ module DataMagic
 
       def finish!
         validate!
-        refresh_index
+        refresh_index if ENV['RACK_ENV'] == 'test' # refresh for tests only
         log_finish
       end
 

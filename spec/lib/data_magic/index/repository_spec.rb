@@ -18,7 +18,8 @@ describe DataMagic::Index::Repository do
         index: 'index',
         id: 'id',
         type: 'document',
-        body: 'data'
+        body: 'data',
+        timeout: '5m'
       })
       repository.save
     end
@@ -41,7 +42,8 @@ describe DataMagic::Index::Repository do
         index: 'index',
         id: 'id',
         type: 'document',
-        body: {doc: 'data'}
+        body: {doc: 'data'},
+        timeout: '5m'
       })
       repository.save
     end

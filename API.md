@@ -210,7 +210,7 @@ By default, using the `_sort_` option returns records sorted into ascending orde
 When the dataset includes a `location` at the root level (`location.lat` and
 `location.lon`) then the documents will be indexed geographically. You can use the `_zip` and `_distance` options to narrow query results down to those within a geographic area. For example, `_zip=12345&_distance=10mi` will return only those results within 10 miles of the center of the given zip code.
 
-Additionally, you can request `location.lat` and `location.lat` in a search that includes a `_fields` filter and it will return the record(s) with respective lat and/or lon coordinates.
+Additionally, you can request `location.lat` and `location.lon` in a search that includes a `_fields` filter and it will return the record(s) with respective lat and/or lon coordinates.
 
 #### Additional Notes on Geographic Filtering
 

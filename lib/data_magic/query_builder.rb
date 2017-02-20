@@ -11,7 +11,8 @@ module DataMagic
           size:   per_page,
         }
 
-        query_hash[:query] = generate_squery(params, options, config).to_search
+        squery = generate_squery(params, options, config)
+        query_hash[:query] = squery.request[:body][:query]
 
         if options[:command] == 'stats'
           query_hash.merge! add_aggregations(params, options, config)
@@ -85,7 +86,7 @@ module DataMagic
           elsif field_type == "integer" && value.is_a?(String) && /,/.match(value) # list of integers
             squery = integer_list_query(squery, param, value)
           else # field equality
-            squery = squery.where(param => value)
+            squery = squery.filter.match(param => value)
           end
         end
         squery
@@ -148,8 +149,7 @@ module DataMagic
           # default to miles if no distance given
           unit = distance[-2..-1]
           distance = "#{distance}mi" if unit != "km" and unit != "mi"
-
-          squery = squery.geo('location', distance: distance, lat: location[:lat], lng: location[:lon])
+          squery = squery.geo_distance(field: 'coords', distance: distance, location: {lat: location[:lat], lon: location[:lon]})
         end
         squery
       end

@@ -6,6 +6,7 @@ describe DataMagic::QueryBuilder do
 
   before :example do
     DataMagic.destroy
+    DataMagic.client
     ENV['DATA_PATH'] = './spec/fixtures/minimal'
     DataMagic.config = DataMagic::Config.new
   end
@@ -39,13 +40,13 @@ describe DataMagic::QueryBuilder do
 
   describe "can exact match on a field" do
     subject { { zipcode: "35762" } }
-    let(:expected_query) { { match: { "zipcode" => { query: "35762" } } } }
+    let(:expected_query) { { match: { "zipcode" => "35762" } } }
     it_correctly "builds a query"
   end
 
   describe "can exact match on a nested field" do
     subject { { 'school.zip': "35762" } }
-    let(:expected_query) { { match: { "school.zip" => { query: "35762" } } } }
+    let(:expected_query) { { match: { "school.zip" => "35762" } } }
     it_correctly "builds a query"
   end
 
@@ -63,13 +64,7 @@ describe DataMagic::QueryBuilder do
       allow(DataMagic.config).to receive(:field_type).with(:age).and_return("integer")
     end
     subject { { age: '10,20,40' } }
-    let(:expected_query) do {
-        filtered: {
-            query: { match_all: {} },
-            filter: {
-                terms: { age: [10,20,40] }
-            } } }
-    end
+    let(:expected_query) { { terms: { age: [10,20,40] } } }
     it_correctly "builds a query"
   end
 
@@ -77,13 +72,11 @@ describe DataMagic::QueryBuilder do
     subject { {} }
     let(:options) { { zip: "94132", distance: "30mi" } }
     let(:expected_query) do {
-      filtered: {
-        query: { match_all: {} },
-        filter: {
           geo_distance: {
+            field: "coords",
             distance: "30mi",
-            "location" => { lat: 37.7211, lon: -122.4754 }
-      } } } }
+            location: { lat: 37.7211, lon: -122.4754 }
+      } }
     end
     it_correctly "builds a query"
   end
@@ -147,51 +140,30 @@ describe DataMagic::QueryBuilder do
   describe "can search using the __range operator" do
     context "that is open-ended (left-hand side)" do
       subject { { age__range: '10..' } }
-      let(:expected_query) do {
-        filtered: {
-          query: { match_all: {} },
-          filter: {
-            or: [{ range: { age: { gte: 10 } } }]
-          } } }
-      end
+      let(:expected_query) { { or: [{ range: { age: { gte: 10 } } }] } }
       it_correctly "builds a query"
     end
 
     context "that is open-ended (right-hand side)" do
       subject { { age__range: '..10' } }
-      let(:expected_query) do {
-        filtered: {
-          query: { match_all: {} },
-          filter: {
-            or: [{ range: { age: { lte: 10 } } }]
-          } } }
-      end
+      let(:expected_query) { { or: [{ range: { age: { lte: 10 } } }] } }
       it_correctly "builds a query"
     end
 
     context "that is closed" do
       subject { { age__range: '10..20' } }
-      let(:expected_query) do {
-        filtered: {
-          query: { match_all: {} },
-          filter: {
-            or: [{ range: { age: { gte: 10, lte: 20 } } }]
-        } } }
-      end
+      let(:expected_query) { { or: [{ range: { age: { gte:10, lte: 20 } } }] } }
       it_correctly "builds a query"
     end
 
     context "that has multiple ranges" do
       subject { { age__range: '10..20,30..40' } }
       let(:expected_query) do {
-        filtered: {
-          query: { match_all: {} },
-          filter: {
             or: [
               { range: { age: { gte: 10, lte: 20 } } },
               { range: { age: { gte: 30, lte: 40 } } }
             ]
-          } } }
+         }
       end
       it_correctly "builds a query"
     end
@@ -199,19 +171,19 @@ describe DataMagic::QueryBuilder do
 
   describe 'converts values to the correct type' do
     subject { { population__range: '1000..' } }
-    let(:expected_query) do {
-      filtered: {
-        query: { match_all: {} },
-        filter: { or: [ { range: { population: { gte: 1000 } } } ] }
-      }
-    }
-    end
+    let(:expected_query){ { or: [ { range: { population: { gte: 1000 } } } ] } }
     it_correctly "builds a query"
   end
 
   describe 'negates values' do
     let(:expected_query) do {
-      bool: { must_not: [ { match: { 'state' => { query: 'CA' } } } ] }
+      bool: {
+        filter: [
+          { bool:
+            { must_not: [{ terms: {"state"=>["CA"]} }]}
+          }
+        ]
+      }
     }
     end
     context 'with "__ne"' do
@@ -226,12 +198,18 @@ describe DataMagic::QueryBuilder do
 
   describe 'allows matching and negation of the different fields' do
     subject { { name: 'San Francisco', state__ne: 'CA' } }
-    let(:expected_query) do {
-      bool: {
-        must: [ { match: { 'name' => { query: 'San Francisco' } } } ],
-        must_not: [ { match: { 'state' => { query: 'CA' } } } ]
-      }
-    }
+    let(:expected_query) do
+        { bool:
+          { filter: [
+              { bool:
+                  {
+                    must: [{:match=>{"name"=>"San Francisco"}}],
+                    must_not: [{:terms=>{"state"=>["CA"]}}]
+                  }
+              }
+            ]
+          }
+        }
     end
     it_correctly "builds a query"
   end

@@ -44,7 +44,8 @@ module DataMagic
           index: client.index_name,
           id: document.id,
           type: 'document',
-          body: document.data
+          body: document.data,
+          timeout: '5m'
         })
       end
 
@@ -53,7 +54,8 @@ module DataMagic
           index: client.index_name,
           id: document.id,
           type: 'document',
-          body: {doc: document.data}
+          body: {doc: document.data},
+          timeout: '5m'
         })
       end
 

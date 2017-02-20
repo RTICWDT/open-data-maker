@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby '2.2.6'
+ruby '2.3.3'
 
 # Distribute your app as a gem
 # gemspec
@@ -13,6 +13,7 @@ ruby '2.2.6'
 
 # open-data-maker requirements
 gem 'elasticsearch'
+gem 'typhoeus'
 gem 'stretchy'
 gem 'hashie'
 gem 'cf-app-utils'

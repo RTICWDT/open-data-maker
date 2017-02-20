@@ -1,3 +1,5 @@
+require 'typhoeus'
+require 'typhoeus/adapters/faraday'
 require 'elasticsearch'
 require 'safe_yaml'
 require 'csv'
@@ -53,7 +55,7 @@ module DataMagic
         s3_secret_key = s3cred['secret_key'] || s3cred['secret_access_key']
         ::Aws.config[:credentials] = ::Aws::Credentials.new(s3_access_key, s3_secret_key)
       end
-      ::Aws.config[:region] = 'us-east-1'
+      ::Aws.config[:region] = s3cred['region'] || 'us-east-1'
       @s3 = ::Aws::S3::Client.new
       logger.info "@s3 = #{@s3.inspect}"
     end
@@ -163,7 +165,7 @@ module DataMagic
     hash.each do |key, value|
       if value.is_a?(Hash) && value[:type].nil?  # things are nested under this
         hash[key] = {
-          path: "full", type: "object",
+          type: 'object',
           properties: value
         }
         nested_object_type(value)
@@ -196,6 +198,8 @@ module DataMagic
         index: es_index_name,
         body: {
             settings: {
+                number_of_shards: 1,
+                number_of_replicas: 0,
                 analysis: {
                     filter: {
                         autocomplete_filter: {
@@ -240,15 +244,8 @@ module DataMagic
       'literal' => {type: 'string', index:'not_analyzed'},
       'name' => {type: 'string', index:'not_analyzed'},
       'lowercase_name' => {type: 'string', index:'not_analyzed', store: false},
-      'autocomplete' => { type: 'string',
-                          index_analyzer: 'autocomplete_index',
-                          search_analyzer: 'autocomplete_search'
-      },
-      'lat_lon' => { type: 'geo_point',
-                     lat_lon: true,
-                     store: true
-
-      }
+      'autocomplete' => {type: 'string', analyzer: 'autocomplete_index', search_analyzer: 'autocomplete_search'},
+      'lat_lon' => { type: 'geo_point', lat_lon: true, store: true }
    }
     field_types.each_with_object({}) do |(key, type), result|
       result[key] = custom_type[type]
@@ -319,12 +316,13 @@ module DataMagic
   end
 
   def self.client
+    timeout = (ENV['INDEX_APP'] == 'enable') ? 10*60 : 5*60
     opts =
     {
       transport_options: {
         request: {
-          timeout: 5*60,
-          open_timeout: 5*60
+          timeout: timeout,
+          open_timeout: timeout
         }
       }
     }
@@ -339,11 +337,13 @@ module DataMagic
         logger.info "eservice_uri: #{eservice_uri}"
         opts[:host] = eservice_uri
       end
+      if ENV['ES_URI']
+        opts[:host] = ENV['ES_URI'] # env override for eservice uri
+      end
       logger.info "default local elasticsearch connection"
       @client = ::Elasticsearch::Client.new(opts)
-      Stretchy.configure do |c|
-        c.client = @client   # use a custom client
-      end
+      @client = Elasticsearch::Client.new(opts)
+      Stretchy.client = @client   # use a custom client
     end
     @client
   end
