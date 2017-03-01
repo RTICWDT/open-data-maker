@@ -1,3 +1,5 @@
+require 'action_view'
+include ActionView::Helpers::SanitizeHelper
 module DataMagic
   module ErrorChecker
     class << self
@@ -92,6 +94,8 @@ module DataMagic
       end
 
       def build_error(opts)
+        opts[:input] = sanitize_error_opts(opts[:input]) unless opts[:input].nil?
+        opts[:parameter] = sanitize_error_opts(opts[:parameter]) unless opts[:parameter].nil?
         opts[:message] =
           case opts[:error]
           when 'invalid_or_incomplete_parameters'
@@ -130,6 +134,11 @@ module DataMagic
       def strip_op(param)
         param.sub(/__\w+$/, '')
       end
+
+      def sanitize_error_opts(html)
+        strip_tags(html.to_s)
+      end
+
     end
   end
 end

@@ -58,6 +58,26 @@ describe 'API errors', type: 'feature' do
       end
     end
 
+    context "when an unknown parameter is provided that contains html tags" do
+      let(:params) { { "<b>frog</b>" => "toad" } }
+      let(:expected_errors) do
+        [{
+             error: 'parameter_not_found',
+             message: "The input parameter 'frog' is not known in this dataset.",
+             input: 'frog'
+         }]
+      end
+      context "and dictionary-only-search is on" do
+        before do
+          allow(config).to receive(:dictionary_only_search?).and_return(true)
+        end
+        it_correctly "returns an error"
+      end
+      context "and dictionary-only-search is off" do
+        it_correctly "does not return an error"
+      end
+    end
+
     context "when an unknown field is specified in the field list" do
       let(:options) { { fields: %w(state marjorie) } }
       let(:expected_errors) do
@@ -66,6 +86,26 @@ describe 'API errors', type: 'feature' do
           input: 'marjorie',
           message: "The input field 'marjorie' (in the fields parameter) is not a field in this dataset."
         }]
+      end
+      context "and dictionary-only-search is on" do
+        before do
+          allow(config).to receive(:dictionary_only_search?).and_return(true)
+        end
+        it_correctly "returns an error"
+      end
+      context "and dictionary-only-search is off" do
+        it_correctly "does not return an error"
+      end
+    end
+
+    context "when an unknown field is specified in the field list that contains html tags" do
+      let(:options) { { fields: %w(state <b>marjorie</b>) } }
+      let(:expected_errors) do
+        [{
+             error: 'field_not_found',
+             input: 'marjorie',
+             message: "The input field 'marjorie' (in the fields parameter) is not a field in this dataset."
+         }]
       end
       context "and dictionary-only-search is on" do
         before do
@@ -105,7 +145,23 @@ describe 'API errors', type: 'feature' do
           }]
         end
         it_correctly "returns an error"
+
+        context "providing an string html tag for an integer" do
+          let(:params) { { "population" => "<b>kevin</b>" } }
+          let(:expected_errors) do
+            [{
+                 error: 'parameter_type_error',
+                 message: "The parameter 'population' expects a value of type integer, but received 'kevin' which is a value of type string.",
+                 input: 'kevin',
+                 parameter: 'population',
+                 expected_type: 'integer',
+                 input_type: 'string'
+             }]
+          end
+          it_correctly "returns an error"
+        end
       end
+
 
       context "providing a float for an integer, with negation" do
         let(:params) { { "population__not" => "-123.00" } }
@@ -118,6 +174,21 @@ describe 'API errors', type: 'feature' do
             expected_type: 'integer',
             input_type: 'float'
           }]
+        end
+        it_correctly "returns an error"
+      end
+
+      context "providing a string html tag for an integer, with negation" do
+        let(:params) { { "population__not" => "<b>-123.00</b>" } }
+        let(:expected_errors) do
+          [{
+               error: 'parameter_type_error',
+               message: "The parameter 'population__not' expects a value of type integer, but received '-123.00' which is a value of type string.",
+               input: '-123.00',
+               parameter: 'population__not',
+               expected_type: 'integer',
+               input_type: 'string'
+           }]
         end
         it_correctly "returns an error"
       end
@@ -143,6 +214,20 @@ describe 'API errors', type: 'feature' do
         end
         it_correctly "returns an error"
       end
+
+      context "in the wrong format with html tags" do
+        let(:params) { { "population__range" => "<b>kevin</b>..3" } }
+        let(:expected_errors) do
+          [{
+               error: 'range_format_error',
+               message: "The range 'kevin..3' supplied to parameter 'population' isn't in the correct format.",
+               input: 'kevin..3',
+               parameter: 'population'
+           }]
+        end
+        it_correctly "returns an error"
+      end
+
       context "in the right format" do
         let(:params) { { "population__range" => "2..3" } }
         it_correctly "does not return an error"
@@ -177,6 +262,36 @@ describe 'API errors', type: 'feature' do
       # response, which it shouldn't, because that doesn't matter.
       it_correctly "returns an error"
     end
+
+    context "when multiple errors occur with html tags" do
+      let(:params)  { { "population__range" => "<b>kevin</b>..3" } }
+      let(:options) { { fields: %w(state <b>frog</b> <b>marjorie</b>) } }
+      let(:expected_errors) do
+        [
+            {
+                error: 'field_not_found',
+                message: "The input field 'frog' (in the fields parameter) is not a field in this dataset.",
+                input: 'frog'
+            }, {
+                error: 'field_not_found',
+                message: "The input field 'marjorie' (in the fields parameter) is not a field in this dataset.",
+                input: 'marjorie'
+            }, {
+                error: 'range_format_error',
+                message: "The range 'kevin..3' supplied to parameter 'population' isn't in the correct format.",
+                input: 'kevin..3',
+                parameter: 'population'
+            }
+        ]
+      end
+      before do
+        allow(config).to receive(:dictionary_only_search?).and_return(true)
+      end
+      # NOTE: This currently also asserts the ordering of errors in the JSON
+      # response, which it shouldn't, because that doesn't matter.
+      it_correctly "returns an error"
+    end
+
     context "when a distance is supplied" do
       context "and no zip" do
         let(:options) { { distance: "4" } }
@@ -200,8 +315,21 @@ describe 'API errors', type: 'feature' do
             error: 'zipcode_error',
             message: "The provided zipcode, '00002', is not valid.",
             input: '00002',
-            parameter: :zip
+            parameter: 'zip'
           }]
+        }
+        it_correctly "returns an error"
+      end
+
+      context "when an invalid zipcode wrapped in html tag is provided" do
+        let(:options) { { zip: '<b>00002</b>', distance: "4" } }
+        let(:expected_errors) {
+          [{
+               error: 'zipcode_error',
+               message: "The provided zipcode, '00002', is not valid.",
+               input: '00002',
+               parameter: 'zip'
+           }]
         }
         it_correctly "returns an error"
       end
