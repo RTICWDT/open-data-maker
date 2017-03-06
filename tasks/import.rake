@@ -1,9 +1,10 @@
 require 'data_magic'
 require 'ruby-prof'
 
-desc "import files from DATA_PATH, rake import[profile=true] for profile output"
-task :import, [:profile] => :environment do |t, args|
+desc "import files from DATA_PATH via rake import, optionally rake import[filename.csv] to restart import from a specific file, also rake import[nil,profile=true] for profile output."
+task :import, [:continue, :profile] => :environment do |t, args|
   options = {}
+  options[:continue] = args[:continue]
   start_time = Time.now
   RubyProf.start if args[:profile]
 

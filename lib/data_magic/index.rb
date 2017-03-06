@@ -26,7 +26,15 @@ module DataMagic
     Config.logger.debug "--- index_with_dictionary, starting at #{start_time}"
 
     logger.info "files: #{self.config.files}"
-    config.files.each_with_index do |filepath, index|
+
+    # optionally continue importing from a named file (see import.rake)
+    starting_from = 0
+    if options[:continue]
+      starting_from = config.files.find_index { |file| file.match( /#{options[:continue]}/ ) }
+      logger.info "Indexing continues with file: #{options[:continue]}" unless starting_from.nil?
+    end
+
+    config.files[starting_from.to_i..-1].each_with_index do |filepath, index|
       fname = filepath.split('/').last
       logger.debug "indexing #{fname} #{index} file config:#{config.additional_data_for_file(index).inspect}"
       options[:add_data] = config.additional_data_for_file(index)
