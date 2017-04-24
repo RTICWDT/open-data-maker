@@ -71,6 +71,7 @@ GEM
     i18n (0.8.1)
     jmespath (1.0.2)
       multi_json (~> 1.0)
+    json (1.8.6)
     jwt (1.5.1)
     launchy (2.4.3)
       addressable (~> 2.3)
@@ -147,7 +148,7 @@ GEM
     pry-byebug (3.2.0)
       byebug (~> 5.0)
       pry (~> 0.10)
-    puma (2.15.3)
+    puma (3.8.2)
     rack (1.6.5)
     rack-protection (1.5.3)
       rack
