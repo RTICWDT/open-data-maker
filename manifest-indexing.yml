@@ -1,6 +1,6 @@
 ---
 applications:
--  name: ccapi-indexing
+-  name: csapi-indexing
    command: bundle exec puma -C ./config/puma.rb
    instances: 1
    memory: 2G
