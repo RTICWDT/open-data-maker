@@ -1,0 +1,56 @@
+version: 2
+
+shared: &shared
+  steps:
+    - checkout
+
+    # Restore bundle cache
+    - restore_cache:
+        keys:
+          - bundle-cache-{{ checksum "Gemfile.lock" }}
+          - bundle-cache-
+
+    - run:
+        name: Bundle Install
+        command: bundle install --path vendor/bundle
+
+    # Store bundle cache
+    - save_cache:
+        key: bundle-cache-{{ checksum "Gemfile.lock" }}
+        paths:
+          - vendor/bundle
+
+    - run:
+        name: Wait for Elasticsearch
+        command: |
+          while ! curl -sS --fail http://localhost:9200 > /dev/null 2>&1; do
+            sleep 5
+          done
+
+    - run:
+        name: RSpec
+        command: bundle exec rspec
+
+  # Save test results for timing analysis
+    - store_test_results:
+        path: test_results
+
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      test:
+        working_directory: ~/repo
+        <<: *shared
+        docker:
+          - image: circleci/ruby:2.3.6
+            environment:
+              BUNDLE_JOBS: 3
+              BUNDLE_RETRY: 3
+              BUNDLE_PATH: vendor/bundle
+              RACK_ENV: test
+          - image: elasticsearch:2.4.4
+            environment:
+              ES_JAVA_OPTS: "-Dmapper.allow_dots_in_name=true"
+              
