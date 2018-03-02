@@ -41,6 +41,7 @@ group :test do
   gem 'rspec'
   gem 'rspec-mocks'
   gem 'rack-test', :require => 'rack/test'
+  gem 'rspec_junit_formatter'
 end
 
 group 'dev' do

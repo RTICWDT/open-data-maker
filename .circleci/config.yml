@@ -29,12 +29,16 @@ shared: &shared
           done
 
     - run:
+        name: Create Test Directory
+        command: mkdir ~/rspec
+
+    - run:
         name: RSpec
-        command: bundle exec rspec
+        command: bundle exec rspec --format progress --format RspecJunitFormatter -o ~/rspec/rspec.xml
 
   # Save test results for timing analysis
     - store_test_results:
-        path: test_results
+        path: ~/rspec
 
 jobs:
   test-odm:
