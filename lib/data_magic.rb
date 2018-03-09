@@ -49,7 +49,7 @@ module DataMagic
       else
         s3cred = {'access_key'=>  ENV['s3_access_key'], 'secret_key' => ENV['s3_secret_key']}
       end
-      logger.info "s3cred = #{s3cred.inspect}"
+      # logger.info "s3cred = #{s3cred.inspect}"
       if ENV['RACK_ENV'] != 'test'
         s3_access_key = s3cred['access_key'] || s3cred['access_key_id']
         s3_secret_key = s3cred['secret_key'] || s3cred['secret_access_key']
@@ -57,7 +57,7 @@ module DataMagic
       end
       ::Aws.config[:region] = s3cred['region'] || 'us-east-1'
       @s3 = ::Aws::S3::Client.new
-      logger.info "@s3 = #{@s3.inspect}"
+      # logger.info "@s3 = #{@s3.inspect}"
     end
     @s3
   #  logger.info "response: #{response.inspect}"
@@ -174,13 +174,13 @@ module DataMagic
   end
 
   def self.create_index(es_index_name = nil, field_types={})
-    logger.info "create_index field_types: #{field_types.inspect[0..500]}"
+    # logger.info "create_index field_types: #{field_types.inspect[0..500]}"
     es_index_name ||= self.config.scoped_index_name
     field_types['location'] = 'lat_lon' # custom lat_lon type maps to geo_point with additional field options
     es_types = NestedHash.new.add(es_field_types(field_types))
     nested_object_type(es_types)
     begin
-      logger.info "====> creating index with type mapping: #{es_types.inspect[0..500]}"
+      logger.info "====> creating index with type mapping"
       client.indices.create base_index_hash(es_index_name, es_types)
     rescue Elasticsearch::Transport::Transport::Errors::BadRequest => error
       if error.message.include? "IndexAlreadyExistsException"
@@ -360,8 +360,8 @@ module DataMagic
     logger.info "--"*20
     logger.info "    DataMagic init VCAP_APPLICATION=#{ENV['VCAP_APPLICATION'].inspect}"
     logger.info "--"*20
-    logger.info "options: #{options.inspect}"
-    logger.info "self.config: #{self.config.inspect}"
+    # logger.info "options: #{options.inspect}"
+    # logger.info "self.config: #{self.config.inspect}"
     if self.config.nil?   # only init once
       ::Aws.eager_autoload!       # see https://github.com/aws/aws-sdk-ruby/issues/833
       self.config = Config.new(s3: self.s3)    # loads data.yaml

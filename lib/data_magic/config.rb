@@ -145,7 +145,7 @@ module DataMagic
     # this means we should only take these fields from that file, or fields
     # with the specified prefix
     def only_field_list(only_names, all_fields)
-      logger.info "only_field_list #{only_names.inspect}"
+      # logger.info "only_field_list #{only_names.inspect}"
       selected = {}
       only_names.each do |name|
         # pick all fields with given only_name as either exact match or prefix
@@ -257,9 +257,9 @@ module DataMagic
       if @field_types.nil?
         @field_types = {}
         fields = {}
-        logger.info "file_config #{file_config.inspect}"
+        # logger.info "file_config #{file_config.inspect}"
         file_config.each do |f|
-          logger.info "f #{f.inspect}"
+          # logger.info "f #{f.inspect}"
           if f.keys == ['name']   # only filename, use all the columns
             fields.merge!(dictionary)
           else
@@ -267,7 +267,7 @@ module DataMagic
             fields.merge!(make_nested(f['nest'], dictionary)) if f['nest']
           end
         end
-        logger.info "field_types #{fields.inspect}"
+        # logger.info "field_types #{fields.inspect}"
         fields.each do |field_name, info|
           type = info['type'] || "string"
           #logger.info "field #{field_name}: #{type.inspect}"
@@ -285,11 +285,11 @@ module DataMagic
       # index when we update the configuration document
       DataMagic.client.indices.delete index: scoped_index_name if index_exists?
       DataMagic.create_index(scoped_index_name, field_types)  ## DataMagic::Index.create ?
-      dotted_dictionary = @data['dictionary'] unless @data['dictionary'].nil? # ES <2.4 dotted keys fix
-      @data['dictionary'] = NestedHash.new.add(@data['dictionary']) unless @data['dictionary'].nil?
+      #dotted_dictionary = @data['dictionary'] unless @data['dictionary'].nil? # ES <2.4 dotted keys fix
+      #@data['dictionary'] = NestedHash.new.add(@data['dictionary']) unless @data['dictionary'].nil?
       DataMagic.client.index index: scoped_index_name, type: 'config', id: 1, body: @data
       DataMagic.client.indices.refresh index: scoped_index_name
-      @data['dictionary'] = dotted_dictionary unless @data['dictionary'].nil?
+      #@data['dictionary'] = dotted_dictionary unless @data['dictionary'].nil?
     end
 
     def delete_index_and_reload_config
@@ -303,7 +303,7 @@ module DataMagic
       updated = false
       index_name = scoped_index_name
       if index_needs_update?
-        logger.debug "--------> new config -> new index: #{@data.inspect[0..255]}"
+        # logger.debug "--------> new config -> new index: #{@data.inspect[0..255]}"
         recreate_indexed_config
         updated = true
       end
@@ -436,8 +436,8 @@ module DataMagic
     # must have a name, everything else is optional
     # fdata can be nil, then we get all files in path
     def parse_files(path, fdata = nil, options = {})
-      logger.debug "parse_files: #{fdata.inspect}"
-      logger.debug "options: #{options.inspect}"
+      # logger.debug "parse_files: #{fdata.inspect}"
+      # logger.debug "options: #{options.inspect}"
       names = []
       if fdata.nil?
         names = list_files(path)
@@ -469,11 +469,11 @@ module DataMagic
     end
 
     def load_or_reload_datayaml(directory_path)
-      logger.debug "load config #{directory_path.inspect}"
+      # logger.debug "load config #{directory_path.inspect}"
       init_ivars
       @data = load_yaml(directory_path)
       @data['unique'] ||= []
-      logger.debug "config: #{@data.inspect[0..600]}"
+      # logger.debug "config: #{@data.inspect[0..600]}"
       @data['index'] ||= clean_index(@data_path)
       endpoint = @data['api'] || clean_index(@data_path)
       @dictionary = @data['dictionary'] || {}
@@ -482,7 +482,7 @@ module DataMagic
       @api_endpoints[endpoint] = {index: @data['index']}
       @files, @data['files'] = parse_files(directory_path, @data['files'], @data['options'])
 
-      logger.debug "file_config: #{@data['files'].inspect}"
+      # logger.debug "file_config: #{@data['files'].inspect}"
       logger.debug "no files found" if @data['files'].empty?
 
       # keep track of where we loaded our data, so we can avoid loading again
