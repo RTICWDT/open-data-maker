@@ -259,6 +259,64 @@ describe DataMagic::Index::DocumentBuilder do
     end
   end
 
+  context "with options[:nest]" do
+    before do
+      config.dictionary = {
+          id: 'ID',
+          state: 'STABBR',
+          city: {
+              source: 'CITY',
+              type: 'name'
+          }
+      }
+    end
+    let(:fields) { config.field_mapping }
+
+    context "specify nested columns" do
+      let(:options) {{ nest: {
+          'key' => 'loc',
+          'contents' => %w[state city _city]
+      } }}
+      subject {{ ID: 'ABC', STABBR: 'NY', CITY: 'New York' }}
+      let(:expected_document) {{'loc' => { 'state' => 'NY', 'city' => 'New York', '_city' => 'new york'}, 'id' => 'ABC'}}
+      it_correctly "creates a document"
+    end
+  end
+
+  context "with both options[:only] and options[:nest]" do
+    before do
+      config.dictionary = {
+          id: 'ID',
+          state: 'STABBR',
+          zipcode: 'ZIPCODE',
+          under_investigation: {
+              source:'HCM2',
+              type: 'integer'
+          },
+          city: {
+              source: 'CITY',
+              type: 'name'
+          }
+      }
+    end
+    let(:fields) { config.field_mapping }
+
+    context "specify only AND nested columns" do
+      let(:options) {
+        {
+          only: %w[under_investigation],
+          nest: {
+            'key' => 'loc',
+            'contents' => %w[state city]
+          }
+        }
+      }
+      subject {{ ID: 'ABC', STABBR: 'NY',CITY: 'New York', ZIPCODE: '10001', HCM2: 1 }}
+      let(:expected_document) {{'under_investigation' => 1, 'loc' => { 'state' => 'NY', 'city' => 'New York'}, 'id' => 'ABC'}}
+      it_correctly "creates a document"
+    end
+  end
+
   describe "boolean expressions" do
     before do
       allow(config).to receive(:csv_column_type).with(:accredited).and_return('boolean')

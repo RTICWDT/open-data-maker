@@ -13,6 +13,7 @@ module DataMagic
         #      where all column_names and values are strings
         # fields: column_name => field_name
         # config: DataMagic.Config instance for dictionary, column types, NULL
+        # return: hash - may include :only, :nest, or both :only AND :nest fields/value pairs as specified in config.files
         def build(row, builder_data, config)
           fields = builder_data.new_field_names
           options = builder_data.options
@@ -27,8 +28,14 @@ module DataMagic
           field_values.merge!(lowercase_columns(field_values, config.column_field_types))
           field_values.merge!(additional) if additional
           doc = NestedHash.new.add(field_values)
-          doc = parse_nested(doc, options) if options[:nest]
-          doc = select_only_fields(doc, options[:only]) unless options[:only].nil?
+          if options[:only] && options[:nest]
+            doc_from_only = select_only_fields(doc, options[:only])
+            doc_from_nest = parse_nested(doc, options)
+            doc = doc_from_only.merge!(doc_from_nest)
+          else
+            doc = parse_nested(doc, options) if options[:nest]
+            doc = select_only_fields(doc, options[:only]) unless options[:only].nil?
+          end
           doc
         end
 

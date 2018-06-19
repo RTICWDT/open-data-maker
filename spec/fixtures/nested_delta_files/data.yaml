@@ -1,0 +1,47 @@
+version: 1.5.5
+api: school
+index: fake-nested-delta
+unique: [id]
+
+dictionary:
+  id: UNITID
+  name:
+    source: INSTNM
+    type: literal
+  city: CITY_MAIN
+  state: STABBR_MAIN
+  zipcode: ZIP_MAIN
+  location.lat: LATITUDE_MAIN
+  location.lon: LONGITUDE_MAIN
+  under_investigation:
+    source: HCM2
+    type: integer
+    description: under ED monitoring flag
+
+  sat_average: SAT_AVG
+  earnings.6_yrs_after_entry.median:
+    source: earn_2002_p10
+    description: Median earnings of students
+    type: integer
+
+  earnings.6_yrs_after_entry.percent_gt_25k:
+    source: gt_25k_2006_p6
+    description: Share of students earning over $25,000/year
+    type: float
+
+files:
+  - name: latest-school-data.csv
+    only: [id, name, city, state, under_investigation]
+  - name: latest-school-data.csv
+    nest:
+      key: latest
+      contents: [earnings, sat_average]
+    delta_only: [city, state, under_investigation]
+  - name: school2013.csv
+    nest:
+      key: 2013
+      contents: [earnings, sat_average]
+  - name: school2012.csv
+    nest:
+      key: 2012
+      contents: [earnings, sat_average]
