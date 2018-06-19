@@ -94,7 +94,7 @@ module DataMagic
       end
 
       unless original_file_index
-        raise ArgumentError, "delta_original file must contiain :delta_only key in data.yaml. None was provided."
+        raise ArgumentError, "delta_original file must contiain :delta_only key in data.yaml. No :delta_only key found."
       end
 
       # use specified :delta_update filename, or fall back to :delta_original if not provided
@@ -108,6 +108,7 @@ module DataMagic
         # Append the :delta_only array as our :only fields
         options[:only] = config.info_for_file(original_file_index, :delta_only)
         options[:nest] = config.info_for_file(original_file_index, :nest)
+        options[:nest][:parent_missing] = 'skip'
         index_file_process(options, delta_filepath)
       end
       log_index_end(start_time)
