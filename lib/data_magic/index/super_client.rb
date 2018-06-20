@@ -19,7 +19,7 @@ module DataMagic
       end
 
       def creating?
-        options[:nest] == nil || options[:nest][:parent_missing] == 'noskip'
+        options[:root] || options[:nest] == nil
       end
 
       def allow_skips?

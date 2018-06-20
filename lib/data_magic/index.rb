@@ -61,6 +61,7 @@ module DataMagic
       fname = filepath.split('/').last
       logger.debug "indexing #{fname} #{starting_from + index} file config:#{config.additional_data_for_file(starting_from + index).inspect}"
       options[:add_data] = config.additional_data_for_file(starting_from + index)
+      options[:root] = config.info_for_file(starting_from + index, :root)
       options[:only] = config.info_for_file(starting_from + index, :only)
       options[:nest] = config.info_for_file(starting_from + index, :nest)
       index_file_process(options, filepath)
@@ -108,7 +109,8 @@ module DataMagic
         # Append the :delta_only array as our :only fields
         options[:only] = config.info_for_file(original_file_index, :delta_only)
         options[:nest] = config.info_for_file(original_file_index, :nest)
-        options[:nest][:parent_missing] = 'skip'
+        options[:root] = false # we are not creating new documents
+        options[:nest][:parent_missing] = 'skip' # we allow skips
         index_file_process(options, delta_filepath)
       end
       log_index_end(start_time)
