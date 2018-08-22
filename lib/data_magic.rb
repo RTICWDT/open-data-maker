@@ -47,7 +47,7 @@ module DataMagic
       if ENV['VCAP_APPLICATION']
         s3cred = ::CF::App::Credentials.find_by_service_name(ENV['s3_bucket_service'] || 'bservice')
       else
-        s3cred = {'access_key'=>  ENV['s3_access_key'], 'secret_key' => ENV['s3_secret_key']}
+        s3cred = {'access_key'=>  ENV['s3_access_key'], 'secret_key' => ENV['s3_secret_key'], 'region' => ENV['s3_region']}
       end
       # logger.info "s3cred = #{s3cred.inspect}"
       if ENV['RACK_ENV'] != 'test'
