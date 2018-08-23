@@ -163,7 +163,7 @@ For example: `school.degrees_awarded.predominant=2,3,4` will match records with 
 
 To exclude a set of records from results, use a negative match (also known as an inverted match). Append the characters `__not` to the parameter name to specify a negative match.
 
-For example: `school.region_id__not==5` matches on records where the `school.region_id` does _not_ equal `5`.
+For example: `school.region_id__not=5` matches on records where the `school.region_id` does _not_ equal `5`.
 
 ### Range matches with the `__range` operator
 
