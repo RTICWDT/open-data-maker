@@ -44,7 +44,7 @@ jobs:
   test-odm:
     <<: *shared
     docker:
-      - image: circleci/ruby:2.3.7
+      - image: circleci/ruby:2.3.8
         environment:
           BUNDLE_JOBS: 3
           BUNDLE_RETRY: 3
