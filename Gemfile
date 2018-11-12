@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby '2.3.8'
+ruby '2.3.7'
 
 # Distribute your app as a gem
 # gemspec
