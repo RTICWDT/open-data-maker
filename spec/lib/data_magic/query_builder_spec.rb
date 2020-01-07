@@ -89,14 +89,6 @@ describe DataMagic::QueryBuilder do
     it_correctly "builds a query"
   end
 
-  describe "limits maximum page size" do
-    subject { {} }
-    let(:options) { { page: 0, per_page: 2000 } }
-    let(:expected_query) { { match_all: {} } }
-    let(:expected_meta)  { { post_es_response: {}, from: 0, size: 100, _source: {:exclude=>["_*"]} }}
-    it_correctly "builds a query"
-  end
-
   describe "can specify fields to return" do
     before do
       ENV['DATA_PATH'] = './spec/fixtures/school_names'
