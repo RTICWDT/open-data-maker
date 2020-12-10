@@ -11,6 +11,7 @@ require 'uri'
 require 'cf-app-utils'
 require 'logger'
 require 'set'
+require 'json'
 
 require_relative 'data_magic/config'
 require_relative 'data_magic/index'
@@ -35,6 +36,7 @@ module DataMagic
 
   DEFAULT_PAGE_SIZE = 20
   MAX_PAGE_SIZE = 100
+  MAX_NESTED_RESULT = 1000
   DEFAULT_EXTENSIONS = ['.csv']
   DEFAULT_PATH = './sample-data'
   class InvalidData < StandardError
