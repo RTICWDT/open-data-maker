@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby '2.6.5'
+ruby '2.6.6'
 
 # Distribute your app as a gem
 # gemspec
@@ -18,10 +18,10 @@ gem 'stretchy'
 gem 'hashie'
 gem 'cf-app-utils'
 #gem 'unicorn'
-gem 'puma'
+gem 'puma', '~>4.3'
 gem 'safe_yaml'
 gem 'aws-sdk', '~> 2'
-gem 'actionview'
+gem 'actionview', '6.0.3.4'
 gem 'dotenv'
 gem 'oj'
 gem 'parslet'
@@ -50,7 +50,7 @@ group 'dev' do
 
 end
 # Padrino Stable Gem
-gem 'padrino', '0.13.3.4'
+gem 'padrino', '~> 0.15'
 
 gem 'pry', :group => ['development', 'test']
 gem 'pry-byebug', :group => ['development', 'test']

@@ -1,0 +1,25 @@
+version: '3'
+services:
+  odm-elasticsearch:
+    image: elasticsearch:2.4.4
+    container_name: odm-elasticsearch
+    environment:
+      ES_JAVA_OPTS: "-Dmapper.allow_dots_in_name=true -Xms512m -Xmx512m"
+      discovery.type: single-node
+    ports:
+      - "9200:9200"
+    volumes:
+      - ./.docker/data/es:/usr/share/elasticsearch/data
+  web:
+    build: .
+    command: bash -c
+      "./wait-for-it.sh odm-elasticsearch:9200 && bundle exec padrino start -h 0.0.0.0"
+    volumes:
+      - .:/myapp
+    ports:
+      - "3000:3000"
+    environment:
+      - ES_URI=odm-elasticsearch
+      - RACK_ENV=test # Set env to ensure ES configs with replicas 0
+    depends_on:
+      - odm-elasticsearch

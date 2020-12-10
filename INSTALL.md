@@ -6,6 +6,36 @@ If you just want to install and run, then you can just download a
 You will still need the the dependencies below, but you don't need to
 clone the git repo for the source code.
 
+## Docker
+Local development is possible using a [Docker] container + `docker-compose`
+
+### First run
+- Start docker
+
+```
+docker-compose up
+```
+
+- Run `rake import` in the `web` container.
+
+```
+docker-compose run web rake import
+```
+
+- Application is available at `http://localhost:3000`
+
+### After initial run
+
+```
+docker-compose up
+```
+
+- or run it detached with
+
+```
+docker-compose up -d
+```
+
 ## Install Prerequisites
 
 You can run our bootstrap script to make sure you have all the dependencies.
@@ -16,8 +46,8 @@ script/bootstrap
 ```
 
 To run Open Data Maker, you will need to have the following software installed on your computer:
-* [Elasticsearch] 1.7.3
-* [Ruby] 2.2.2
+* [Elasticsearch] 2.4.4
+* [Ruby] 2.6.5
 
 **NOTE: Open Data Maker indexing currently is very slow on ES2.x, however, an index created on 1.x can be restored to 2.x.
 
@@ -118,6 +148,7 @@ See [Contribution Guide](CONTRIBUTING.md)
 [rbenv]: https://github.com/sstephenson/rbenv
 [Ruby]: https://www.ruby-lang.org/en/
 [Git]: https://git-scm.com/
+[Docker]: https://www.docker.com/
 
 
 

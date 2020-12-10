@@ -20,6 +20,16 @@ dictionary:
     source: CITY
     type: autocomplete
     description: City
+  school.degrees_awarded.predominant:
+    source: PREDDEG
+    type: integer
+    description: |-
+      Predominant undergraduate degree awarded
+        0 Not classified
+        1 Predominantly certificate-degree granting
+        2 Predominantly associate's-degree granting
+        3 Predominantly bachelor's-degree granting
+        4 Entirely graduate-degree granting
   programs.cip_4_digit.code:
     source: CIPCODE
     type: integer
@@ -39,6 +49,11 @@ dictionary:
       6: Doctoral Degree
       7: First Professional Degree
       8: Graduate/Professional Certificate"
+  programs.cip_4_digit.earnings.median_earnings:
+    source: P_MD_EARN_WNE
+    map: program
+    type: integer
+    description: Median earnings of federally-aided completers in the earnings cohort
 
 shared_config: &shared_config
   contents:
@@ -62,8 +77,20 @@ partial_map:
     link: programs.cip_4_digit.ope6_id
 
 files:
-  - name: ProgramDebt1516_1617PP.csv
-    map: program_debt
+  - name: Most-Recent-Cohorts-All-Data-Elements.csv
+    root: true
+    only:
+    - school
+    nest:
+      key: latest
+      <<: *shared_config
+    delta_only:
+    - ope8_id
+    - ope6_id
+    - location
+    - school
+  - name: FieldOfStudyData1516_1617_PP.csv
+    map: program_data
     nest:
       parent_missing: skip
       key: latest

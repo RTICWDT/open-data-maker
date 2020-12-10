@@ -15,6 +15,8 @@ cf-ssh.yml
 .idea/
 *profile*
 coverage/
+.bundle
+.rakeTasks
 
 public/stylesheets/application.css*
 
@@ -26,3 +28,7 @@ real-data
 
 # contains Google API tokens
 client_secret.json
+
+# Docker Data files
+./docker/data/es*
+bin
