@@ -153,7 +153,7 @@ module DataMagic
 
 private
   def self.valid_types
-    %w[integer float string literal name autocomplete boolean]
+    %w[integer float string literal name autocomplete boolean long]
   end
 
 end # module DataMagic

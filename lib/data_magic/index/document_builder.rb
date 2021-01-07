@@ -132,6 +132,8 @@ module DataMagic
                         value.to_s.downcase
                       when "boolean"
                         parse_boolean(value)
+                      when "long"
+                        value.to_i
                       else # "string"
                         value.to_s
           end

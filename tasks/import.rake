@@ -1,4 +1,4 @@
-require 'data_magic'
+require_relative '../lib/data_magic.rb'
 require 'ruby-prof'
 
 desc "import files from DATA_PATH via rake import, optionally rake import[filename.csv] to restart import from a specific file, also rake import[nil,profile=true] for profile output."
