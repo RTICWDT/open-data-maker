@@ -7,10 +7,10 @@ version: cities100-2010
 # then convertes to csv and removed " city" from after each city name
 index: city-data
 api: cities
-unique: ['name']
+unique: ["name"]
 
 options:
-  search: dictionary_only   # API provides error when requesting fields not in dictionary
+  search: dictionary_only # API provides error when requesting fields not in dictionary
 
 dictionary:
   id:
@@ -51,7 +51,6 @@ dictionary:
   land_area:
     source: ALAND_SQMI
     description: Land Area (square miles)
-    source: ALAND_SQMI
     type: float
   area.water:
     description: Water Area (square miles)

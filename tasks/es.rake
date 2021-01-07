@@ -1,4 +1,4 @@
-require 'data_magic'
+require_relative '../lib/data_magic.rb'
 
 namespace :es do
   desc "delete elasticsearch index (_all for all)"
