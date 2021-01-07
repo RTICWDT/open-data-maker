@@ -68,6 +68,15 @@ describe DataMagic::QueryBuilder do
     it_correctly "builds a query"
   end
 
+  describe "can create a query from a list of numbers as strings with leading zeros" do
+    before do
+      allow(DataMagic.config).to receive(:field_type).with(:ope8_id).and_return("string")
+    end
+    subject { { ope8_id: '00303600,01092300,00122000' } }
+    let(:expected_query) { { terms: { ope8_id: ['00303600','01092300','00122000'] } } }
+    it_correctly "builds a query"
+  end
+
   describe "can search within a location" do
     subject { {} }
     let(:options) { { zip: "94132", distance: "30mi" } }

@@ -237,8 +237,8 @@ module DataMagic
           elsif match = /(.+)__(range|ne|not)\z/.match(param)
             field, operator = match.captures.map(&:to_sym)
             squery = range_query(squery, operator, field, value)
-          elsif field_type == "integer" && value.is_a?(String) && /,/.match(value) # list of integers
-            squery = integer_list_query(squery, param, value)
+          elsif (field_type == "string" || field_type == "integer") && value.is_a?(String) && /,/.match(value) # lists of integers or strings
+            squery = list_query(squery, param, value, field_type)
           else # field equality
             squery = squery.filter.match(param => value)
           end
@@ -275,10 +275,16 @@ module DataMagic
           })
       end
 
-      def integer_list_query(squery, field, value)
+      def list_query(squery, field, value, field_type)
+        if ( field_type == "string")
+          filter = value.split(',').map(&:to_str)
+        else
+          filter = value.split(',').map(&:to_i)
+        end
+
         squery.filter(
           terms: {
-            field => value.split(',').map(&:to_i) }
+            field => filter }
         )
       end
 

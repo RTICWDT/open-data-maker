@@ -257,6 +257,14 @@ describe "DataMagic #search" do
       expect(response["results"][1]['name']).to eq("Los Angeles")
       expect(response["results"][2]['name']).to eq("Chicago")
     end
+
+    it "can match a string field on multiple numbers with leading zeros" do
+      response = DataMagic.search({code: "02395220,02410877,00428803,"}, sort: "code:desc")
+      expect(response["results"].length).to eq(3)
+      expect(response["results"][0]['name']).to eq("Los Angeles")
+      expect(response["results"][1]['name']).to eq("New York")
+      expect(response["results"][2]['name']).to eq("Chicago")
+    end
   end
 
   describe "with null fields in the data" do
